@@ -115,22 +115,32 @@ ISR(TIMER2_OVF_vect)
 
 ISR(USART_RXC_vect) //UART Receive complete routine
 {
-    //test message
-    uart_send('T');
-    uart_send('e');
-    uart_send('s');
-    uart_send('t');
-    uart_send('\n');
-    uart_send('\r'); //return carriage
-    for(tempcounter = 0; tempcounter < SAMPLES; tempcounter++) //loop to print all the data out of uart. tempcounter is used so that even if not all SAMPLES are taken, the data can still be dumped
+    if(UDR == 'a') //ascii format
     {
-	uart_send(48 + (memory[tempcounter] / 10000) % 10);
-	uart_send(48 + (memory[tempcounter] / 1000) % 10);
-	uart_send(48 + (memory[tempcounter] / 100) % 10);
-	uart_send(48 + (memory[tempcounter] / 10) % 10);
-	uart_send(48 + (memory[tempcounter] % 10));
-	uart_send('\n'); //newline
+	//test message
+	uart_send('T');
+	uart_send('e');
+	uart_send('s');
+	uart_send('t');
+	uart_send('\n');
 	uart_send('\r'); //return carriage
+	for(tempcounter = 0; tempcounter < SAMPLES; tempcounter++) //loop to print all the data out of uart. tempcounter is used so that even if not all SAMPLES are taken, the data can still be dumped
+	{
+	    uart_send(48 + (memory[tempcounter] / 10000) % 10);
+	    uart_send(48 + (memory[tempcounter] / 1000) % 10);
+	    uart_send(48 + (memory[tempcounter] / 100) % 10);
+	    uart_send(48 + (memory[tempcounter] / 10) % 10);
+	    uart_send(48 + (memory[tempcounter] % 10));
+	    uart_send('\n'); //newline
+	    uart_send('\r'); //return carriage
+	}
     }
-    BYTE temp = UDR; //reading UDR because the datasheet states that in the ISR for RXC, UDR has to be read at least once to avoid an interrupt loop
+    else if(UDR == 'b') //binary format
+    {
+	for(tempcounter = 0; tempcounter < SAMPLES; tempcounter++) //loop to print all the data out of uart. tempcounter is used so that even if not all SAMPLES are taken, the data can still be dumped
+	{
+	    uart_send(memory[tempcounter] & 0xff);
+	    uart_send((memory[tempcounter] >> 8) & 0xff);
+	}
+    }
 }
