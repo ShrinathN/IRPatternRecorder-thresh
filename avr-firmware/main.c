@@ -142,5 +142,6 @@ ISR(USART_RXC_vect) //UART Receive complete routine
 	    uart_send(memory[tempcounter] & 0xff);
 	    uart_send((memory[tempcounter] >> 8) & 0xff);
 	}
+	uart_send(0x0); //byte to send at the end of the session
     }
 }
